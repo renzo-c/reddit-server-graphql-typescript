@@ -6,12 +6,21 @@ import microConfig from "./mikro-orm.config";
 require("dotenv").config();
 
 const main = async () => {
+  // connect to db
   const orm = await MikroORM.init(microConfig);
+  const emFork = orm.em.fork();
 
-  const post = orm.em.create(Post, { id: 235431, title: "My first post" });
-  await orm.em.persistAndFlush(post);
+  // run migrations
+  await orm.getMigrator().up();
+  
+  // run sql
+  const post = emFork.create(Post, { title: "My first post" });
+  await emFork.persistAndFlush(post);
+
+  const posts = await emFork.find(Post, {});
+  console.log(posts);
 };
 
 main().catch((err) => {
-    console.error(err)
+  console.error(err);
 });
