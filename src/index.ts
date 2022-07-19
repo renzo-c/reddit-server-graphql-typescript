@@ -6,6 +6,7 @@ import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
+import { PostResolver } from "./resolvers/post";
 
 require("dotenv").config();
 const PORT = process.env.PORT || 4000;
@@ -26,11 +27,12 @@ const main = async () => {
   const app = express();
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver],
+      resolvers: [HelloResolver, PostResolver],
       validate: false,
     }),
+    context: () => ({ em: emFork }),
   });
-  
+
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
 
